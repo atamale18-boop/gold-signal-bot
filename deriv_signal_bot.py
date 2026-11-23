@@ -125,7 +125,7 @@ def send(sig, live):
     msg = (
         "🚀 DERIV SIGNAL ASSISTANT — MTF\n🆕 NEW SIGNAL ALERT\n━━━━━━━━━━━━━━━━\n"
         f"📊 Market: {SYMBOL} | Short-term\n"
-        "⏱ Timeframes: M5 entry / M15 setup / M30 confirmation\n"
+        "⏱ Timeframes: M5 entry / M15 bias + VWAP\n"
         f"📈 Direction: {sig['dir']}\n"
         f"🎯 Entry: {sig['entry']:.2f}\n"
         f"🛑 Stop Loss: {sig['sl']:.2f}\n"
