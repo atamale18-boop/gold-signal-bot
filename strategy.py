@@ -95,3 +95,46 @@ STRATEGIES = {
     "VWAP + EMA 10/23": vwap_strategy,
     "SCALP pullback": scalp,
 }
+
+
+def smc():
+    m15, m5 = candles(900), candles(300)
+    zr = m15[-50:]
+    rh = max(x["high"] for x in zr)
+    rl = min(x["low"] for x in zr)
+    rng = rh - rl
+    if rng <= 0:
+        return None
+    sw = 5
+    H = [x["high"] for x in m5]
+    L = [x["low"] for x in m5]
+    C = [x["close"] for x in m5]
+    hi = lo = None
+    hi_broken = lo_broken = True
+    trend = 0
+    events = []
+    for t in range(2 * sw, len(m5)):
+        p = t - sw
+        if H[p] == max(H[p - sw:p + sw + 1]):
+            hi, hi_broken = H[p], False
+        if L[p] == min(L[p - sw:p + sw + 1]):
+            lo, lo_broken = L[p], False
+        if hi is not None and not hi_broken and C[t] > hi:
+            events.append((t, "BUY"))
+            hi_broken, trend = True, 1
+        if lo is not None and not lo_broken and C[t] < lo:
+            events.append((t, "SELL"))
+            lo_broken, trend = True, -1
+    if not events:
+        return None
+    t, d = events[-1]
+    if len(m5) - 1 - t > 5:
+        return None
+    if d == "BUY" and min(L[t - 5:t + 1]) <= rl + 0.25 * rng:
+        return build("BUY", C[-1], 2 * b.atr(m5), m5)
+    if d == "SELL" and max(H[t - 5:t + 1]) >= rh - 0.25 * rng:
+        return build("SELL", C[-1], 2 * b.atr(m5), m5)
+    return None
+
+
+STRATEGIES["SMC zones + structure"] = smc
